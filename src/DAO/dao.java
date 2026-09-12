@@ -4,12 +4,16 @@
  */
 package DAO;
 
+import java.sql.Connection;
+import util.conexao;
+
 /**
  *
  * @author Aluno
  */
 public class dao {
 
+    Connection conn = conexao.conectar();
 }
 
 
