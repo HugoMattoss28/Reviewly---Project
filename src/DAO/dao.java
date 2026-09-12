@@ -9,5 +9,10 @@ package DAO;
  * @author Aluno
  */
 public class dao {
-    
+
+Connection conn = Conexao.conectar();
+
+
 }
+
+
