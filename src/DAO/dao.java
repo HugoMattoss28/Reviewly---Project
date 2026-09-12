@@ -10,9 +10,6 @@ package DAO;
  */
 public class dao {
 
-Connection conn = Conexao.conectar();
-
-
 }
 
 
