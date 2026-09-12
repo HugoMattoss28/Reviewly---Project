@@ -10,7 +10,7 @@ public class conexao {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/reviewfyBD";
     private static final String USUARIO = "postgres";
-    private static final String SENHA = "SUA_SENHA";
+    private static final String SENHA = "123456";
 
     public static Connection conectar() throws SQLException {
         return DriverManager.getConnection(URL, USUARIO, SENHA);
