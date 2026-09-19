@@ -10,13 +10,14 @@ public class Serie {
     private double nota;
     private String srcImagem;
     private String descricao;
+    private String autor;
 
     // 2. Construtor Vazio
     public Serie() {
     }
 
     // 3. Construtor com Parâmetros
-    public Serie(int id, String titulo, String genero, int anoLancamento, double nota, String srcImagem, String descricao) {
+    public Serie(int id, String titulo, String genero, int anoLancamento, double nota, String srcImagem, String descricao, String autor) {
         this.id = id;
         this.titulo = titulo;
         this.genero = genero;
@@ -24,6 +25,7 @@ public class Serie {
         this.nota = nota;
         this.srcImagem = srcImagem;
         this.descricao = descricao;
+        this.autor = autor;
     }
 
     // 4. Métodos Getters e Setters (Comportamento de acesso)
@@ -93,5 +95,19 @@ public class Serie {
      */
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    /**
+     * @return the autor
+     */
+    public String getAutor() {
+        return autor;
+    }
+
+    /**
+     * @param autor the autor to set
+     */
+    public void setAutor(String autor) {
+        this.autor = autor;
     }
 }
