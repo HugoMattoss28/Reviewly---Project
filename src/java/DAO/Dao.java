@@ -1,7 +1,7 @@
-package dao;
+package DAO;
 
 import model.Serie;
-import util.Conexao;
+import util.ConexaoBD;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SerieDAO {
+public class Dao {
 
     // INSERIR
     public void inserir(Serie serie) throws SQLException {
@@ -21,7 +21,7 @@ public class SerieDAO {
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection conn = Conexao.conectar();
+        try (Connection conn = ConexaoBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, serie.getTitulo());
@@ -46,7 +46,7 @@ public class SerieDAO {
 
         List<Serie> series = new ArrayList<>();
 
-        try (Connection conn = Conexao.conectar();
+        try (Connection conn = ConexaoBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
@@ -80,7 +80,7 @@ public class SerieDAO {
                 WHERE id = ?
                 """;
 
-        try (Connection conn = Conexao.conectar();
+        try (Connection conn = ConexaoBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
@@ -123,7 +123,7 @@ public class SerieDAO {
                 WHERE id = ?
                 """;
 
-        try (Connection conn = Conexao.conectar();
+        try (Connection conn = ConexaoBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, serie.getTitulo());
@@ -144,7 +144,7 @@ public class SerieDAO {
 
         String sql = "DELETE FROM serie WHERE id = ?";
 
-        try (Connection conn = Conexao.conectar();
+        try (Connection conn = ConexaoBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
