@@ -10,9 +10,14 @@ public class ConexaoBD {
         "jdbc:postgresql://localhost:5432/reviewfyBD";
 
     private static final String USUARIO = "postgres";
-    private static final String SENHA = "123456";
+    private static final String SENHA = "hugo2018";
 
     public static Connection conectar() throws SQLException {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver JDBC do PostgreSQL não encontrado no classpath.", e);
+        }
         return DriverManager.getConnection(URL, USUARIO, SENHA);
     }
 }

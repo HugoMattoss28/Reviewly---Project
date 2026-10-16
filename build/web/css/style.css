@@ -1,0 +1,1301 @@
+/* ==========================================================================
+   REVIEWLY - EXACT NETFLIX UI REPLICATION (CSS3)
+   Rounded Billboard Hero Card, Pill Navigation, Rows, Hover Popouts & Alerts
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Theme Tokens & Netflix Colors
+   -------------------------------------------------------------------------- */
+:root {
+  --font-logo: 'Bebas Neue', Impact, -apple-system, sans-serif;
+  --font-netflix: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Netflix Palette */
+  --netflix-red: #E50914;
+  --netflix-red-hover: #b81d24;
+  --netflix-red-active: #f40612;
+  --bg-black: #141414;
+  --bg-surface: #181818;
+  --bg-card: #202020;
+  --bg-modal: #181818;
+
+  --text-white: #ffffff;
+  --text-gray: #e5e5e5;
+  --text-muted: #808080;
+  --text-dim: #555555;
+
+  --border-subtle: #2f2f2f;
+  --border-light: rgba(255, 255, 255, 0.2);
+
+  --shadow-billboard: 0 15px 40px rgba(0, 0, 0, 0.7);
+  --shadow-popout: 0 12px 30px rgba(0, 0, 0, 0.9);
+
+  --ease-netflix: cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-fast: 0.2s ease-in-out;
+  --transition-normal: 0.35s var(--ease-netflix);
+}
+
+/* --------------------------------------------------------------------------
+   2. Reset & Global Styles
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background-color: var(--bg-black);
+  color: var(--text-white);
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-netflix);
+  background-color: var(--bg-black);
+  color: var(--text-white);
+  line-height: 1.4;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Custom Netflix Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+/* --------------------------------------------------------------------------
+   3. Alerta de Segurança Oficial: Metflix (Aparece uma vez)
+   -------------------------------------------------------------------------- */
+.security-alert-bar {
+  background: linear-gradient(90deg, #7A0000 0%, #A81313 50%, #7A0000 100%);
+  color: #ffffff;
+  padding: 0.65rem 3.5%;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  animation: slideDownAlert 0.35s ease-out;
+}
+
+.security-alert-bar.hidden {
+  display: none !important;
+}
+
+@keyframes slideDownAlert {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+.security-alert-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.security-icon {
+  font-size: 1.25rem;
+  color: #ffcccc;
+  flex-shrink: 0;
+}
+
+.security-text strong {
+  color: #ffcccc;
+  text-decoration: underline;
+}
+
+.security-text .fake-name {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #ffdd57;
+  border: 1px dashed rgba(255, 221, 87, 0.6);
+}
+
+.security-alert-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.btn-alert-ack {
+  background: #ffffff;
+  color: #7A0000;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-alert-ack:hover {
+  background: #f0f0f0;
+  transform: scale(1.02);
+}
+
+.btn-alert-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-alert-close:hover {
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   4. Barra de Navegação Estilo Netflix Exato (Screenshots 1 e 2)
+   -------------------------------------------------------------------------- */
+.netflix-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3.5%;
+  z-index: 950;
+  background: linear-gradient(180deg, rgba(20, 20, 20, 0.95) 0%, rgba(20, 20, 20, 0.5) 60%, transparent 100%);
+  transition: background-color var(--transition-normal);
+}
+
+.netflix-header.scrolled {
+  background-color: #141414;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.netflix-logo {
+  font-family: var(--font-logo);
+  color: var(--netflix-red);
+  font-size: 2.2rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 1;
+  transition: transform var(--transition-fast);
+}
+
+.netflix-logo:hover {
+  transform: scale(1.02);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* Pílula redonda ativa igual screenshot 2 */
+.nav-item-pill {
+  background-color: #333333;
+  color: #ffffff !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  transition: background-color var(--transition-fast);
+}
+
+.nav-item-link {
+  color: #e5e5e5;
+  font-size: 0.82rem;
+  font-weight: 400;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.nav-item-link:hover {
+  color: #b3b3b3;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+/* Busca expansível */
+.netflix-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1.15rem;
+  cursor: pointer;
+  padding: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.netflix-search-input {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  padding: 0.35rem 0.75rem 0.35rem 2.2rem;
+  font-size: 0.85rem;
+  outline: none;
+  width: 0;
+  opacity: 0;
+  transition: width 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.netflix-search-box.open .netflix-search-input {
+  width: 220px;
+  opacity: 1;
+  pointer-events: all;
+}
+
+.search-input-icon {
+  position: absolute;
+  left: 0.6rem;
+  color: #ffffff;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.netflix-search-box.open .search-input-icon {
+  opacity: 1;
+}
+
+/* Badge de Notificação vermelho com número (igual screenshot 1 e 2) */
+.notification-btn-wrap {
+  position: relative;
+}
+
+.bell-badge-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--netflix-red);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Perfil de Usuário com Avatar e Caret (igual screenshot 1 e 2) */
+.profile-pill-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.avatar-square {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #E50914, #B81D24);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.profile-caret {
+  font-size: 0.65rem;
+  color: #ffffff;
+  transition: transform var(--transition-fast);
+}
+
+.profile-pill-wrap:hover .profile-caret {
+  transform: rotate(180deg);
+}
+
+.btn-netflix-add {
+  background: var(--netflix-red);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-netflix-add:hover {
+  background: var(--netflix-red-hover);
+  transform: scale(1.02);
+}
+
+/* --------------------------------------------------------------------------
+   5. Billboard Hero em Card Arredondado (EXATO COMO O SCREENSHOT 1)
+   -------------------------------------------------------------------------- */
+.billboard-wrapper {
+  padding: 0 3.5%;
+  margin-top: 80px;
+  margin-bottom: 2rem;
+}
+
+.billboard-rounded-card {
+  position: relative;
+  width: 100%;
+  height: 72vh;
+  min-height: 480px;
+  max-height: 700px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-billboard);
+  display: flex;
+  align-items: flex-end;
+  background-color: #0b0b0b;
+}
+
+.billboard-card-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.billboard-card-backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+/* Vinheta de gradiente nos cantos internos */
+.billboard-card-vignette-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(14, 14, 14, 0.95) 0%, rgba(14, 14, 14, 0.6) 50%, transparent 100%);
+  z-index: 2;
+}
+
+.billboard-card-vignette-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  background: linear-gradient(180deg, transparent 0%, rgba(14, 14, 14, 0.8) 60%, rgba(14, 14, 14, 0.98) 100%);
+  z-index: 2;
+}
+
+/* Emblema vermelho "R" no topo esquerdo do card (igual ao "N" do screenshot 1) */
+.billboard-ribbon-logo {
+  position: absolute;
+  top: 1.5rem;
+  left: 2rem;
+  z-index: 4;
+  font-family: var(--font-logo);
+  color: var(--netflix-red);
+  font-size: 2.2rem;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Botão de volume redondo no topo direito do card (igual screenshot 1) */
+.billboard-volume-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.billboard-volume-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #ffffff;
+}
+
+/* Conteúdo inferior do card (esquerda e direita) */
+.billboard-card-content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 2.5rem 2.5rem 2rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.billboard-info-side {
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.billboard-logo-title {
+  font-family: var(--font-logo);
+  font-size: clamp(2.6rem, 5vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.85);
+}
+
+/* Metadados: Série • 2026 • 1 temporada • [A16] (igual screenshot 1) */
+.billboard-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.badge-age-netflix {
+  background: #E50914;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  line-height: 1.2;
+}
+
+.billboard-synopsis-text {
+  font-size: 0.95rem;
+  color: var(--text-gray);
+  line-height: 1.45;
+  text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Botões pílula redondos (igual screenshot 1: "Assistir" e "Mais informações") */
+.billboard-actions-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+.btn-pill-white {
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-pill-white:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+  transform: scale(1.02);
+}
+
+.btn-pill-gray {
+  background-color: rgba(109, 109, 110, 0.7);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-pill-gray:hover {
+  background-color: rgba(109, 109, 110, 0.45);
+  transform: scale(1.02);
+}
+
+/* Lado direito do card: pílulas informativas (igual screenshot 1) */
+.billboard-pill-tags-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: flex-end;
+}
+
+.billboard-pill-tag {
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   6. Fileiras de Conteúdo (Screenshots 1 e 3)
+   -------------------------------------------------------------------------- */
+.netflix-content-body {
+  position: relative;
+  z-index: 20;
+  padding-bottom: 5rem;
+}
+
+.netflix-row {
+  margin-bottom: 2.8vw;
+  padding: 0 3.5%;
+}
+
+.row-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-gray);
+  margin-bottom: 0.85rem;
+  transition: color var(--transition-fast);
+}
+
+.row-title:hover {
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.row-cards-container {
+  display: flex;
+  gap: 0.55rem;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 0.5rem 0;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+}
+
+.row-cards-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Estado Vazio Elegante (Sem filmes mocados, pronto para o Java/BD) */
+.netflix-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  text-align: center;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.empty-icon {
+  font-size: 2.4rem;
+  opacity: 0.7;
+}
+
+.empty-text {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  max-width: 480px;
+}
+
+/* Card Netflix 16:9 com Hover Popout (Estrutura idêntica ao Screenshot 3) */
+.netflix-card {
+  flex: 0 0 calc((100% - (5 * 0.55rem)) / 6);
+  min-width: 200px;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: var(--bg-card);
+  transition: transform 0.3s var(--ease-netflix), z-index 0.3s;
+  scroll-snap-align: start;
+}
+
+.netflix-card:hover {
+  transform: scale(1.18);
+  z-index: 100;
+  box-shadow: var(--shadow-popout);
+}
+
+.card-thumbnail {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #222;
+  position: relative;
+}
+
+.card-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Badge vermelho "Novidade" / "Top 10" (igual screenshot 3) */
+.card-badge-red {
+  position: absolute;
+  bottom: 0.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--netflix-red);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.card-badge-top10-corner {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  background: var(--netflix-red);
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 0.1rem 0.3rem;
+  border-radius: 2px;
+}
+
+/* Mini controles ao passar o mouse (igual screenshot 3) */
+.card-hover-info {
+  background-color: var(--bg-surface);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.card-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(42, 42, 42, 0.6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all var(--transition-fast);
+}
+
+.btn-circle:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.08);
+}
+
+.btn-circle.btn-play-mini {
+  background: #ffffff;
+  color: #000000;
+  border: none;
+}
+
+.btn-circle.btn-play-mini:hover {
+  background: #e6e6e6;
+}
+
+.card-title-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #999999;
+}
+
+.card-genre-tags {
+  font-size: 0.7rem;
+  color: var(--text-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------------------------
+   7. Modais (Detalhes e Formulário de Cadastro Java)
+   -------------------------------------------------------------------------- */
+.netflix-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.netflix-modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.netflix-modal-container {
+  background-color: var(--bg-modal);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 820px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+  position: relative;
+  transform: scale(0.96);
+  transition: transform var(--transition-normal);
+}
+
+.netflix-modal-overlay.active .netflix-modal-container {
+  transform: scale(1);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #181818;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: background var(--transition-fast);
+}
+
+.modal-close-btn:hover {
+  background: #2a2a2a;
+}
+
+.modal-hero-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000000;
+}
+
+.modal-hero-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-hero-vignette {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-modal) 100%);
+}
+
+.modal-title-overlay {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 2.5rem;
+  z-index: 4;
+}
+
+.modal-title-overlay h2 {
+  font-family: var(--font-logo);
+  font-size: 2.8rem;
+  line-height: 1;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.modal-body-content {
+  padding: 1.5rem 2.5rem 2.5rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.modal-synopsis-full {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-gray);
+}
+
+.modal-info-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.modal-info-sidebar span strong {
+  color: #ffffff;
+}
+
+/* Modal de Formulário (Cadastro Java) */
+.netflix-form-modal {
+  background: #181818;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 650px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+  position: relative;
+}
+
+.netflix-form-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #333333;
+  padding-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.netflix-form-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.netflix-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.netflix-form-group.full {
+  grid-column: 1 / -1;
+}
+
+.netflix-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  font-weight: 500;
+}
+
+.netflix-input, .netflix-textarea {
+  width: 100%;
+  background: #333333;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.92rem;
+  outline: none;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.netflix-input:focus, .netflix-textarea:focus {
+  background: #444444;
+  border-color: #ffffff;
+}
+
+.netflix-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.netflix-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-netflix-submit {
+  background: var(--netflix-red);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-netflix-submit:hover {
+  background: var(--netflix-red-hover);
+}
+
+.btn-netflix-cancel {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid #555555;
+  border-radius: 4px;
+  padding: 0.75rem 1.4rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-netflix-cancel:hover {
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   8. Rodapé Estilo Netflix
+   -------------------------------------------------------------------------- */
+.netflix-footer {
+  padding: 4rem 3.5% 3rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.footer-contact {
+  margin-bottom: 2rem;
+}
+
+.footer-links-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.footer-links-grid a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-links-grid a:hover {
+  text-decoration: underline;
+  color: var(--text-gray);
+}
+
+.footer-service-code {
+  display: inline-block;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--text-muted);
+  margin-bottom: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.footer-copy {
+  font-size: 0.75rem;
+  color: #555555;
+}
+
+/* --------------------------------------------------------------------------
+   9. Responsividade
+   -------------------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .netflix-card {
+    flex: 0 0 calc((100% - (3 * 0.55rem)) / 4);
+  }
+}
+
+@media (max-width: 860px) {
+  .header-nav {
+    display: none;
+  }
+  .billboard-rounded-card {
+    height: 60vh;
+  }
+  .billboard-card-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .billboard-pill-tags-right {
+    display: none;
+  }
+  .netflix-card {
+    flex: 0 0 calc((100% - (2 * 0.55rem)) / 3);
+  }
+  .modal-body-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .netflix-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-links-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .billboard-wrapper {
+    padding: 0 2%;
+    margin-top: 70px;
+  }
+  .billboard-rounded-card {
+    border-radius: 16px;
+    height: 52vh;
+  }
+  .netflix-card {
+    flex: 0 0 75%;
+  }
+  .billboard-logo-title {
+    font-size: 2.2rem;
+  }
+  .billboard-actions-pill {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+
+/* ==========================================================================
+   REVIEWLY — CARDS DE SÉRIE (populados via JSP/Java)
+   Netflix-style thumbnail cards com hover popout
+   ========================================================================== */
+
+/* --- Netflix Card --- */
+.netflix-card {
+  position: relative;
+  flex: 0 0 calc(20% - 10px);
+  min-width: 160px;
+  max-width: 220px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-card);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, z-index 0s 0.25s;
+}
+
+.netflix-card:hover {
+  transform: scale(1.07);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
+  z-index: 10;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Thumb (imagem de capa) */
+.card-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.netflix-card:hover .card-thumb img {
+  transform: scale(1.04);
+}
+
+/* Placeholder quando nao ha srcImagem */
+.card-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  color: var(--text-muted);
+  font-size: 2.5rem;
+}
+
+/* Info que aparece no hover */
+.card-hover-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.6rem 0.75rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, transparent 100%);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.netflix-card:hover .card-hover-info {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.card-hover-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin: 0 0 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-hover-nota {
+  font-size: 0.7rem;
+  color: #ffbe0b;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   REVIEWLY — TOAST DE FEEDBACK (sucesso/erro de cadastro)
+   ========================================================================== */
+.reviewly-toast {
+  position: fixed;
+  top: 1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: 8px;
+  font-family: var(--font-netflix);
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  animation: toastSlideIn 0.35s ease;
+}
+
+.reviewly-toast--success {
+  background: #1a3d1f;
+  border: 1px solid #46d369;
+  color: #46d369;
+}
+
+.reviewly-toast--error {
+  background: #3d1a1a;
+  border: 1px solid var(--netflix-red);
+  color: #ff6b6b;
+}
+
+.reviewly-toast i {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
