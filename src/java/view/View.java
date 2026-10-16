@@ -159,7 +159,7 @@ public class View {
             serie.setAnoLancamento(novoAno);
             serie.setNota(novaNota);
             serie.setSrcImagem(novaImagem);
-            serie.setDescricao(novoDescricao);
+            serie.setDescricao(novaDescricao);
             serie.setAutor(novoAutor);
 
             controller.atualizar(serie);
