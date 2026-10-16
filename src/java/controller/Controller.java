@@ -1,6 +1,6 @@
 package controller;
 
-import dao.SerieDAO;
+import DAO.Dao;
 import model.Serie;
 
 import java.sql.SQLException;
@@ -8,21 +8,21 @@ import java.util.List;
 
 public class Controller {
 
-    private final SerieDAO serieDAO;
+    private final Dao dao;
 
     public Controller() {
-        this.serieDAO = new SerieDAO();
+        this.dao = new Dao();
     }
 
     // CADASTRAR
     public void cadastrar(Serie serie) throws SQLException, IllegalArgumentException {
         validarSerie(serie);
-        serieDAO.inserir(serie);
+        dao.inserir(serie);
     }
 
     // LISTAR TODAS
     public List<Serie> listar() throws SQLException {
-        return serieDAO.listar();
+        return dao.listar();
     }
 
     // BUSCAR POR ID
@@ -30,7 +30,7 @@ public class Controller {
         if (id <= 0) {
             throw new IllegalArgumentException("O ID deve ser um número inteiro positivo.");
         }
-        return serieDAO.buscarPorId(id);
+        return dao.buscarPorId(id);
     }
 
     // ATUALIZAR
@@ -39,7 +39,7 @@ public class Controller {
             throw new IllegalArgumentException("ID inválido para atualização.");
         }
         validarSerie(serie);
-        serieDAO.atualizar(serie);
+        dao.atualizar(serie);
     }
 
     // EXCLUIR
@@ -47,7 +47,7 @@ public class Controller {
         if (id <= 0) {
             throw new IllegalArgumentException("O ID deve ser um número inteiro positivo.");
         }
-        serieDAO.excluir(id);
+        dao.excluir(id);
     }
 
     // VALIDAÇÕES DE REGRAS DE NEGÓCIO
