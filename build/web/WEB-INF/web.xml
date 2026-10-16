@@ -8,20 +8,19 @@
   <display-name>Reviewly</display-name>
   <description>Sistema de Avaliação e Catálogo de Séries — Java + PostgreSQL</description>
 
-  <!-- Página de boas-vindas: redireciona para o Servlet que lista as séries -->
+  <!-- Página de boas-vindas: abre a Tela Inicial (/home) -->
   <welcome-file-list>
-    <welcome-file>controller</welcome-file>
+    <welcome-file>home</welcome-file>
   </welcome-file-list>
 
   <!-- Página de erro amigável -->
   <error-page>
     <error-code>404</error-code>
-    <location>/controller</location>
+    <location>/home</location>
   </error-page>
   <error-page>
     <error-code>500</error-code>
-    <location>/controller</location>
+    <location>/home</location>
   </error-page>
 
 </web-app>
-

@@ -1,47 +1,69 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%-- Proteção de acesso: apenas ADMIN logado pode acessar index.jsp --%>
+<c:if test="${empty sessionScope.usuarioLogado or not sessionScope.usuarioLogado.admin}">
+  <c:redirect url="/auth?restrito=1"/>
+</c:if>
+<c:if test="${series == null}">
+  <c:redirect url="/controller"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Reviewly - O portal de críticas e catálogo de séries no estilo streaming.">
+  <meta name="description" content="Reviewly - Painel do Administrador (CRUD de Séries e Banco de Dados).">
   <meta name="theme-color" content="#141414">
-  <title>Reviewly — Séries, Críticas e Catálogo</title>
+  <title>Reviewly — Painel do Administrador (CRUD)</title>
 
-  <!-- Google Fonts: Bebas Neue (Logo e Títulos) & Montserrat (Interface Netflix) -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Bootstrap Icons (CDN Oficial) -->
+  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-  <!-- Folha de Estilos Externa (CSS3) -->
+  <!-- Folha de Estilos Externa -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <%-- =========================================================================
-       Feedback de operação (erro de banco ou sucesso de cadastro)
-       ========================================================================= --%>
+  <%-- Toasts de Feedback de CRUD --%>
   <c:if test="${not empty erroFormulario}">
     <div class="reviewly-toast reviewly-toast--error" role="alert">
       <i class="bi bi-exclamation-triangle-fill"></i>
-      <span>${erroFormulario}</span>
+      <span>${fn:escapeXml(erroFormulario)}</span>
+    </div>
+  </c:if>
+  <c:if test="${not empty erroListagem}">
+    <div class="reviewly-toast reviewly-toast--error" role="alert">
+      <i class="bi bi-database-fill-exclamation"></i>
+      <span>${fn:escapeXml(erroListagem)}</span>
     </div>
   </c:if>
   <c:if test="${param.sucesso == '1'}">
     <div class="reviewly-toast reviewly-toast--success" role="alert">
       <i class="bi bi-check-circle-fill"></i>
-      <span>Série cadastrada com sucesso no banco de dados!</span>
+      <span>Série cadastrada com sucesso no PostgreSQL!</span>
+    </div>
+  </c:if>
+  <c:if test="${param.atualizado == '1'}">
+    <div class="reviewly-toast reviewly-toast--success" role="alert">
+      <i class="bi bi-pencil-square"></i>
+      <span>Série atualizada com sucesso no banco de dados!</span>
+    </div>
+  </c:if>
+  <c:if test="${param.excluido == '1'}">
+    <div class="reviewly-toast reviewly-toast--error" role="alert">
+      <i class="bi bi-trash3-fill"></i>
+      <span>Série excluída do banco de dados com sucesso!</span>
     </div>
   </c:if>
 
   <!-- =========================================================================
        1. Alerta de Segurança Oficial: Cuidado com o site falso "Metflix"
-       Aparece apenas uma vez (armazenado no localStorage ao dispensar)
        ========================================================================= -->
   <aside id="metflix-security-alert" class="security-alert-bar" role="alert" aria-live="assertive">
     <div class="security-alert-content">
@@ -59,327 +81,285 @@
   </aside>
 
   <!-- =========================================================================
-       2. Barra de Navegação Estilo Netflix
+       2. Barra de Navegação do Painel do Administrador
        ========================================================================= -->
   <header class="netflix-header" role="banner">
     <div class="header-left">
-      <a href="${pageContext.request.contextPath}/controller" class="netflix-logo" aria-label="Reviewly Início">REVIEWLY</a>
-      <nav class="header-nav" role="navigation" aria-label="Menu Principal">
-        <a href="${pageContext.request.contextPath}/controller" class="nav-item-pill">Início</a>
-        <a href="#row-policiais" class="nav-item-link">Séries</a>
-        <a href="#row-aclamadas" class="nav-item-link">Filmes</a>
-        <a href="#row-anime" class="nav-item-link">Jogos</a>
-        <a href="#row-alta" class="nav-item-link">Bombando</a>
-        <a href="#" class="nav-item-link">Minha Netflix</a>
-        <a href="#" class="nav-item-link">Navegar por idiomas</a>
+      <a href="${pageContext.request.contextPath}/controller" class="netflix-logo" aria-label="Reviewly Admin">REVIEWLY</a>
+      <span class="badge-admin-header"><i class="bi bi-shield-lock-fill"></i> PAINEL ADMIN</span>
+      <nav class="header-nav" role="navigation" aria-label="Menu do Administrador">
+        <a href="#secao-crud" class="nav-item-pill">Gerenciar CRUD</a>
+        <a href="#secao-usuarios" class="nav-item-link">Usuários no BD</a>
+        <a href="#rows-section" class="nav-item-link">Prévia das Fileiras</a>
+        <a href="${pageContext.request.contextPath}/home" class="nav-item-link nav-user-view-link">
+          <i class="bi bi-eye-fill"></i> Ver Tela do Usuário
+        </a>
       </nav>
     </div>
 
     <div class="header-right">
-      <!-- Barra de Busca Expansível -->
+      <!-- Busca rápida no CRUD -->
       <div class="netflix-search-box">
         <button class="search-toggle-btn" aria-label="Buscar séries">
           <i class="bi bi-search"></i>
         </button>
         <i class="bi bi-search search-input-icon" aria-hidden="true"></i>
-        <input type="text" class="netflix-search-input" placeholder="Títulos, gêneros, pessoas..." aria-label="Campo de busca">
+        <input type="text" id="catalog-search-input" class="netflix-search-input" placeholder="Filtrar séries no CRUD..." aria-label="Campo de busca">
       </div>
 
-      <!-- Sino de Notificações com Badge vermelho -->
+      <!-- Sino de Notificações -->
       <div class="notification-btn-wrap">
-        <button id="notification-bell-btn" class="search-toggle-btn" title="Notificações e Avisos de Segurança" aria-label="Notificações">
+        <button id="notification-bell-btn" class="search-toggle-btn" title="Reabrir Alerta de Segurança" aria-label="Notificações">
           <i class="bi bi-bell"></i>
           <span class="bell-badge-count">1</span>
         </button>
       </div>
 
-      <!-- Perfil de Usuário com Avatar e Caret -->
-      <div class="profile-pill-wrap" title="Perfil de Crítico">
-        <div class="avatar-square">RV</div>
-        <i class="bi bi-caret-down-fill profile-caret"></i>
-      </div>
-
-      <!-- Botão para Cadastrar Série no Banco de Dados -->
-      <button class="btn-netflix-add open-add-modal-btn">
+      <!-- Botão Cadastrar Nova Série -->
+      <button type="button" class="btn-netflix-add" onclick="openCreateModal()">
         <i class="bi bi-plus-lg"></i>
-        <span>Adicionar Série</span>
+        <span>Cadastrar Série</span>
       </button>
+
+      <!-- Admin Logado + Logout -->
+      <div class="user-logged-pill">
+        <div class="avatar-square avatar-admin">
+          ${fn:substring(sessionScope.usuarioLogado.nome, 0, 2)}
+        </div>
+        <div class="user-logged-info">
+          <span class="user-logged-name">${fn:escapeXml(sessionScope.usuarioLogado.nome)}</span>
+          <span class="user-logged-role role-admin">ADMIN</span>
+        </div>
+        <a href="${pageContext.request.contextPath}/auth?acao=logout" class="btn-logout-icon" title="Sair do Painel Admin">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
     </div>
   </header>
 
   <main role="main">
     <!-- =========================================================================
-         3. Billboard Hero em Card Arredondado
+         3. Painel Principal de Administração (CRUD Completo no PostgreSQL)
          ========================================================================= -->
-    <section class="billboard-wrapper" aria-label="Destaque Principal">
-      <div class="billboard-rounded-card">
-        
-        <!-- Emblema "R" vermelho no topo esquerdo do card -->
-        <div class="billboard-ribbon-logo" aria-hidden="true">R</div>
-
-        <!-- Botão de volume redondo no topo direito do card -->
-        <button class="billboard-volume-btn" aria-label="Alternar áudio" title="Som">
-          <i class="bi bi-volume-up"></i>
-        </button>
-
-        <!-- Imagem de fundo com vinhetas cinematográficas -->
-        <div class="billboard-card-backdrop">
-          <%-- Se existir alguma série cadastrada, usa a imagem da primeira --%>
-          <c:choose>
-            <c:when test="${not empty series and not empty series[0].srcImagem}">
-              <img src="${fn:escapeXml(series[0].srcImagem)}" alt="Capa em destaque: ${fn:escapeXml(series[0].titulo)}">
-            </c:when>
-            <c:otherwise>
-              <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1920&q=85" alt="Cena épica de animação cinematográfica">
-            </c:otherwise>
-          </c:choose>
+    <section id="secao-crud" class="admin-dashboard-section">
+      <div class="admin-dashboard-header">
+        <div>
+          <span class="admin-kicker"><i class="bi bi-database-fill-gear"></i> CONECTADO AO POSTGRESQL (reviewfyBD)</span>
+          <h1 class="admin-main-title">CENTRAL DE CONTROLE &amp; CRUD DE SÉRIES</h1>
+          <p class="admin-subtitle">Cadastre, consulte, atualize e exclua séries em tempo real. Todas as alterações refletem imediatamente na Tela Inicial do Usuário.</p>
         </div>
-        <div class="billboard-card-vignette-left"></div>
-        <div class="billboard-card-vignette-bottom"></div>
+        <div class="admin-header-buttons">
+          <a href="${pageContext.request.contextPath}/home" class="btn-pill-gray" style="text-decoration: none;">
+            <i class="bi bi-box-arrow-up-right"></i> Ir para Tela do Usuário
+          </a>
+          <button type="button" class="btn-pill-white" onclick="openCreateModal()">
+            <i class="bi bi-plus-circle-fill"></i> Nova Série
+          </button>
+        </div>
+      </div>
 
-        <!-- Conteúdo inferior sobreposto no card -->
-        <div class="billboard-card-content">
-          <div class="billboard-info-side">
-            <c:choose>
-              <c:when test="${not empty series}">
-                <h1 class="billboard-logo-title">${fn:escapeXml(series[0].titulo)}</h1>
-                <div class="billboard-meta-line">
-                  <span>${fn:escapeXml(series[0].genero)}</span>
-                  <span>•</span>
-                  <span>${series[0].anoLancamento}</span>
-                  <span>•</span>
-                  <span class="badge-age-netflix">A16</span>
-                </div>
-                <p class="billboard-synopsis-text">${fn:escapeXml(series[0].descricao)}</p>
-              </c:when>
-              <c:otherwise>
-                <h1 class="billboard-logo-title">REVIEWLY ORIGINALS</h1>
-                <div class="billboard-meta-line">
-                  <span>Série</span>
-                  <span>•</span>
-                  <span>Catálogo &amp; Reviews</span>
-                  <span>•</span>
-                  <span>2026</span>
-                  <span>•</span>
-                  <span class="badge-age-netflix">A16</span>
-                </div>
-                <p class="billboard-synopsis-text">
-                  Sua plataforma de streaming está pronta para receber os registros reais do banco PostgreSQL. Conecte sua base e cadastre suas séries para preencher as fileiras da curadoria.
-                </p>
-              </c:otherwise>
-            </c:choose>
+      <!-- Métricas do Banco -->
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card">
+          <div class="stat-icon red"><i class="bi bi-film"></i></div>
+          <div>
+            <span class="stat-value">${fn:length(series)}</span>
+            <span class="stat-label">Séries Cadastradas</span>
+          </div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="stat-icon gold"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <span class="stat-value">${fn:length(usuarios)}</span>
+            <span class="stat-label">Contas na Tabela Usuario</span>
+          </div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="stat-icon green"><i class="bi bi-shield-check"></i></div>
+          <div>
+            <span class="stat-value">ATIVO</span>
+            <span class="stat-label">Status JDBC PostgreSQL</span>
+          </div>
+        </div>
+      </div>
 
-            <div class="billboard-actions-pill">
-              <button class="btn-pill-white open-add-modal-btn">
-                <i class="bi bi-play-fill" style="font-size: 1.15rem;"></i>
-                <span>Assistir / Cadastrar</span>
+      <!-- Tabela CRUD de Séries -->
+      <div class="admin-crud-card">
+        <div class="admin-crud-card-header">
+          <h2><i class="bi bi-table"></i> Registros da Tabela <code>serie</code></h2>
+          <button type="button" class="btn-netflix-add" onclick="openCreateModal()">
+            <i class="bi bi-plus-lg"></i> Adicionar Registro
+          </button>
+        </div>
+
+        <c:choose>
+          <c:when test="${not empty series}">
+            <div class="admin-table-responsive">
+              <table class="admin-crud-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Capa</th>
+                    <th>Título</th>
+                    <th>Gênero</th>
+                    <th>Ano</th>
+                    <th>Nota</th>
+                    <th>Autor</th>
+                    <th style="text-align: right;">Ações CRUD</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <c:forEach var="s" items="${series}">
+                    <tr class="crud-row-item" data-title="${fn:escapeXml(s.titulo)}" data-genre="${fn:escapeXml(s.genero)}">
+                      <td class="td-id">#${s.id}</td>
+                      <td>
+                        <div class="td-thumb">
+                          <c:choose>
+                            <c:when test="${not empty s.srcImagem}">
+                              <img src="${fn:escapeXml(s.srcImagem)}" alt="${fn:escapeXml(s.titulo)}">
+                            </c:when>
+                            <c:otherwise>
+                              <i class="bi bi-film"></i>
+                            </c:otherwise>
+                          </c:choose>
+                        </div>
+                      </td>
+                      <td class="td-title">${fn:escapeXml(s.titulo)}</td>
+                      <td><span class="td-badge-genre">${fn:escapeXml(s.genero)}</span></td>
+                      <td>${s.anoLancamento}</td>
+                      <td>
+                        <span class="td-nota"><i class="bi bi-star-fill"></i> ${s.nota}</span>
+                      </td>
+                      <td>${fn:escapeXml(s.autor)}</td>
+                      <td class="td-actions">
+                        <button type="button" class="btn-crud-action view" title="Ver Detalhes" onclick="openDetailModal(${s.id})">
+                          <i class="bi bi-eye-fill"></i> Ver
+                        </button>
+                        <button type="button" class="btn-crud-action edit" title="Editar Série" onclick="openEditModal(${s.id})">
+                          <i class="bi bi-pencil-square"></i> Editar
+                        </button>
+                        <a href="${pageContext.request.contextPath}/controller?acao=excluir&id=${s.id}"
+                           class="btn-crud-action delete"
+                           onclick="return confirm('Confirma a exclusão permanente da série #${s.id} (${fn:escapeXml(s.titulo)}) do banco de dados?');">
+                          <i class="bi bi-trash3-fill"></i> Excluir
+                        </a>
+                      </td>
+                    </tr>
+                  </c:forEach>
+                </tbody>
+              </table>
+            </div>
+          </c:when>
+          <c:otherwise>
+            <div class="netflix-empty-state" style="margin: 1.5rem 0;">
+              <i class="bi bi-inbox empty-icon"></i>
+              <p class="empty-text">Nenhuma série cadastrada na tabela <code>serie</code> ainda. Clique abaixo para cadastrar a primeira!</p>
+              <button type="button" class="btn-netflix-add" onclick="openCreateModal()">
+                <i class="bi bi-plus-lg"></i> Cadastrar Primeira Série
               </button>
-              <c:if test="${not empty series}">
-                <button class="btn-pill-gray" onclick="openDetailModal(${series[0].id})">
-                  <i class="bi bi-info-circle"></i>
-                  <span>Mais informações</span>
-                </button>
-              </c:if>
-              <c:if test="${empty series}">
-                <button class="btn-pill-gray" onclick="openDetailModal(0)">
-                  <i class="bi bi-info-circle"></i>
-                  <span>Mais informações</span>
-                </button>
-              </c:if>
             </div>
-          </div>
+          </c:otherwise>
+        </c:choose>
+      </div>
 
-          <!-- Pílulas informativas no canto direito -->
-          <div class="billboard-pill-tags-right">
-            <div class="billboard-pill-tag">
-              <i class="bi bi-calendar-event"></i>
-              <span>Temporada 2: terça-feira</span>
-            </div>
-            <div class="billboard-pill-tag">
-              <i class="bi bi-hand-thumbs-up-fill" style="color: #46d369;"></i>
-              <span>Achamos que você vai amar isto!</span>
-            </div>
-          </div>
+      <!-- Tabela de Usuários Cadastrados no Banco -->
+      <div id="secao-usuarios" class="admin-crud-card" style="margin-top: 2rem;">
+        <div class="admin-crud-card-header">
+          <h2><i class="bi bi-people-fill"></i> Contas Registradas na Tabela <code>usuario</code></h2>
+          <a href="${pageContext.request.contextPath}/auth" class="btn-pill-gray" style="text-decoration: none; font-size: 0.8rem; padding: 0.45rem 0.9rem;">
+            <i class="bi bi-person-plus-fill"></i> Cadastrar Novo Usuário/Admin
+          </a>
         </div>
-
+        <div class="admin-table-responsive">
+          <table class="admin-crud-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil de Acesso</th>
+              </tr>
+            </thead>
+            <tbody>
+              <c:forEach var="u" items="${usuarios}">
+                <tr>
+                  <td class="td-id">#${u.id}</td>
+                  <td class="td-title">${fn:escapeXml(u.nome)}</td>
+                  <td>${fn:escapeXml(u.email)}</td>
+                  <td>
+                    <span class="user-logged-role ${u.admin ? 'role-admin' : 'role-user'}">
+                      ${u.admin ? 'ADMINISTRADOR' : 'USUÁRIO'}
+                    </span>
+                  </td>
+                </tr>
+              </c:forEach>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
     <!-- =========================================================================
-         4. Fileiras de Conteúdo — populadas pelo banco de dados via JSTL
+         4. Prévia das Fileiras do Catálogo no Painel Admin
          ========================================================================= -->
     <div id="rows-section" class="netflix-content-body">
-      
-      <%-- Helper: macro que renderiza os cards de uma lista filtrada por gênero.
-           Para cada fileira, filtramos a lista "series" pelo gênero-chave.
-           Se não houver nenhum, exibe o empty-state. --%>
-
-      <!-- Fileira 1: Séries Policiais -->
       <section id="row-policiais" class="netflix-row" aria-labelledby="heading-policiais">
-        <h2 id="heading-policiais" class="row-title">Séries policiais</h2>
+        <h2 id="heading-policiais" class="row-title">Prévia: Catálogo Geral (${fn:length(series)} séries)</h2>
         <div class="row-cards-container">
-          <%-- Renderiza cards para séries cujo gênero contenha "policial" (case-insensitive) --%>
-          <c:set var="hasPoliciais" value="false" />
           <c:forEach var="s" items="${series}">
-            <c:if test="${fn:containsIgnoreCase(s.genero, 'policial') or fn:containsIgnoreCase(s.genero, 'crime') or fn:containsIgnoreCase(s.genero, 'thriller')}">
-              <c:set var="hasPoliciais" value="true" />
-              <article class="netflix-card" data-id="${s.id}" onclick="openDetailModal(${s.id})">
-                <div class="card-thumb">
-                  <c:choose>
-                    <c:when test="${not empty s.srcImagem}">
-                      <img src="${fn:escapeXml(s.srcImagem)}" alt="${fn:escapeXml(s.titulo)}" loading="lazy">
-                    </c:when>
-                    <c:otherwise>
-                      <div class="card-thumb-placeholder"><i class="bi bi-film"></i></div>
-                    </c:otherwise>
-                  </c:choose>
-                </div>
+            <article class="netflix-card" data-id="${s.id}" data-title="${fn:escapeXml(s.titulo)}" data-genre="${fn:escapeXml(s.genero)}" onclick="openDetailModal(${s.id})">
+              <div class="card-thumb">
+                <c:choose>
+                  <c:when test="${not empty s.srcImagem}">
+                    <img src="${fn:escapeXml(s.srcImagem)}" alt="${fn:escapeXml(s.titulo)}" loading="lazy">
+                  </c:when>
+                  <c:otherwise>
+                    <div class="card-thumb-placeholder"><i class="bi bi-film"></i></div>
+                  </c:otherwise>
+                </c:choose>
                 <div class="card-hover-info">
                   <p class="card-hover-title">${fn:escapeXml(s.titulo)}</p>
-                  <span class="card-hover-nota"><i class="bi bi-star-fill"></i> ${s.nota}</span>
+                  <div class="card-hover-meta">
+                    <span class="card-hover-nota"><i class="bi bi-star-fill"></i> ${s.nota}</span>
+                    <span class="card-hover-year">${s.anoLancamento}</span>
+                  </div>
                 </div>
-              </article>
-            </c:if>
+                <div class="card-admin-quick-actions">
+                  <button type="button" class="btn-card-admin edit" title="Editar série" onclick="event.stopPropagation(); openEditModal(${s.id});">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                  <a href="${pageContext.request.contextPath}/controller?acao=excluir&id=${s.id}"
+                     class="btn-card-admin delete" title="Excluir série"
+                     onclick="event.stopPropagation(); return confirm('Deseja excluir esta série?');">
+                    <i class="bi bi-trash3-fill"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-below-caption">
+                <p class="card-below-title">${fn:escapeXml(s.titulo)}</p>
+              </div>
+            </article>
           </c:forEach>
-          <c:if test="${not hasPoliciais}">
+          <c:if test="${empty series}">
             <div class="netflix-empty-state">
-              <i class="bi bi-shield-shaded empty-icon" aria-hidden="true"></i>
-              <p class="empty-text">Nenhuma série policial cadastrada no banco de dados.</p>
-              <button class="btn-netflix-add open-add-modal-btn">
-                <i class="bi bi-plus-lg"></i> Cadastrar Série
-              </button>
+              <i class="bi bi-film empty-icon" aria-hidden="true"></i>
+              <p class="empty-text">Nenhuma série cadastrada no banco de dados.</p>
             </div>
           </c:if>
         </div>
       </section>
-
-      <!-- Fileira 2: Séries Aclamadas pela Crítica (nota >= 8.5) -->
-      <section id="row-aclamadas" class="netflix-row" aria-labelledby="heading-aclamadas">
-        <h2 id="heading-aclamadas" class="row-title">Séries aclamadas pela crítica</h2>
-        <div class="row-cards-container">
-          <c:set var="hasAclamadas" value="false" />
-          <c:forEach var="s" items="${series}">
-            <c:if test="${s.nota >= 8.5}">
-              <c:set var="hasAclamadas" value="true" />
-              <article class="netflix-card" data-id="${s.id}" onclick="openDetailModal(${s.id})">
-                <div class="card-thumb">
-                  <c:choose>
-                    <c:when test="${not empty s.srcImagem}">
-                      <img src="${fn:escapeXml(s.srcImagem)}" alt="${fn:escapeXml(s.titulo)}" loading="lazy">
-                    </c:when>
-                    <c:otherwise>
-                      <div class="card-thumb-placeholder"><i class="bi bi-film"></i></div>
-                    </c:otherwise>
-                  </c:choose>
-                </div>
-                <div class="card-hover-info">
-                  <p class="card-hover-title">${fn:escapeXml(s.titulo)}</p>
-                  <span class="card-hover-nota"><i class="bi bi-star-fill"></i> ${s.nota}</span>
-                </div>
-              </article>
-            </c:if>
-          </c:forEach>
-          <c:if test="${not hasAclamadas}">
-            <div class="netflix-empty-state">
-              <i class="bi bi-star-fill empty-icon" style="color: #ffbe0b;" aria-hidden="true"></i>
-              <p class="empty-text">As produções com as maiores notas do banco de dados aparecerão aqui.</p>
-              <button class="btn-netflix-add open-add-modal-btn">
-                <i class="bi bi-plus-lg"></i> Cadastrar Série
-              </button>
-            </div>
-          </c:if>
-        </div>
-      </section>
-
-      <!-- Fileira 3: Animes -->
-      <section id="row-anime" class="netflix-row" aria-labelledby="heading-anime">
-        <h2 id="heading-anime" class="row-title">Você pediu anime? Toma anime!</h2>
-        <div class="row-cards-container">
-          <c:set var="hasAnime" value="false" />
-          <c:forEach var="s" items="${series}">
-            <c:if test="${fn:containsIgnoreCase(s.genero, 'anime')}">
-              <c:set var="hasAnime" value="true" />
-              <article class="netflix-card" data-id="${s.id}" onclick="openDetailModal(${s.id})">
-                <div class="card-thumb">
-                  <c:choose>
-                    <c:when test="${not empty s.srcImagem}">
-                      <img src="${fn:escapeXml(s.srcImagem)}" alt="${fn:escapeXml(s.titulo)}" loading="lazy">
-                    </c:when>
-                    <c:otherwise>
-                      <div class="card-thumb-placeholder"><i class="bi bi-film"></i></div>
-                    </c:otherwise>
-                  </c:choose>
-                </div>
-                <div class="card-hover-info">
-                  <p class="card-hover-title">${fn:escapeXml(s.titulo)}</p>
-                  <span class="card-hover-nota"><i class="bi bi-star-fill"></i> ${s.nota}</span>
-                </div>
-              </article>
-            </c:if>
-          </c:forEach>
-          <c:if test="${not hasAnime}">
-            <div class="netflix-empty-state">
-              <i class="bi bi-lightning-charge-fill empty-icon" style="color: #00f2fe;" aria-hidden="true"></i>
-              <p class="empty-text">Nenhum anime registrado no banco no momento.</p>
-              <button class="btn-netflix-add open-add-modal-btn">
-                <i class="bi bi-plus-lg"></i> Cadastrar Série
-              </button>
-            </div>
-          </c:if>
-        </div>
-      </section>
-
-      <!-- Fileira 4: Novas temporadas e em alta (mais recentes, por anoLancamento) -->
-      <section id="row-alta" class="netflix-row" aria-labelledby="heading-alta">
-        <h2 id="heading-alta" class="row-title">Novas temporadas e em alta</h2>
-        <div class="row-cards-container">
-          <c:set var="hasAlta" value="false" />
-          <c:forEach var="s" items="${series}">
-            <c:if test="${s.anoLancamento >= 2023}">
-              <c:set var="hasAlta" value="true" />
-              <article class="netflix-card" data-id="${s.id}" onclick="openDetailModal(${s.id})">
-                <div class="card-thumb">
-                  <c:choose>
-                    <c:when test="${not empty s.srcImagem}">
-                      <img src="${fn:escapeXml(s.srcImagem)}" alt="${fn:escapeXml(s.titulo)}" loading="lazy">
-                    </c:when>
-                    <c:otherwise>
-                      <div class="card-thumb-placeholder"><i class="bi bi-film"></i></div>
-                    </c:otherwise>
-                  </c:choose>
-                </div>
-                <div class="card-hover-info">
-                  <p class="card-hover-title">${fn:escapeXml(s.titulo)}</p>
-                  <span class="card-hover-nota"><i class="bi bi-star-fill"></i> ${s.nota}</span>
-                </div>
-              </article>
-            </c:if>
-          </c:forEach>
-          <c:if test="${not hasAlta}">
-            <div class="netflix-empty-state">
-              <i class="bi bi-fire empty-icon" style="color: #E50914;" aria-hidden="true"></i>
-              <p class="empty-text">Nenhuma produção recente cadastrada ainda.</p>
-              <button class="btn-netflix-add open-add-modal-btn">
-                <i class="bi bi-plus-lg"></i> Cadastrar Série
-              </button>
-            </div>
-          </c:if>
-        </div>
-      </section>
-
     </div>
   </main>
 
   <!-- =========================================================================
        5. Modal Estilo Netflix: "Mais Informações"
-       Populado via JavaScript com os dados JSON das séries
        ========================================================================= -->
   <div id="netflix-detail-modal" class="netflix-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
     <div class="netflix-modal-container">
       <button class="modal-close-btn" onclick="closeDetailModal()" aria-label="Fechar janela">
         <i class="bi bi-x-lg"></i>
       </button>
-      
+
       <div class="modal-hero-cover">
         <img id="modal-cover-img" src="" alt="Capa da série">
         <div class="modal-hero-vignette"></div>
@@ -410,7 +390,7 @@
   </div>
 
   <!-- =========================================================================
-       6. Modal de Formulário: Envia para POST /controller?acao=cadastrar
+       6. Modal de Formulário CRUD: CADASTRAR e ATUALIZAR Série no PostgreSQL
        ========================================================================= -->
   <div id="netflix-add-modal" class="netflix-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="add-form-heading">
     <div class="netflix-form-modal">
@@ -421,9 +401,9 @@
         </button>
       </div>
 
-      <!-- Formulário com método POST e campos mapeados para Serie.java -->
       <form id="netflix-add-form" method="POST" action="${pageContext.request.contextPath}/controller">
-        <input type="hidden" name="acao" value="cadastrar">
+        <input type="hidden" id="form-acao" name="acao" value="cadastrar">
+        <input type="hidden" id="form-id" name="id" value="">
 
         <div class="netflix-form-grid">
           <div class="netflix-form-group full">
@@ -433,7 +413,7 @@
 
           <div class="netflix-form-group">
             <label for="form-genero" class="netflix-label">Gênero Principal *</label>
-            <input type="text" id="form-genero" name="genero" class="netflix-input" placeholder="Ex: Anime / Sci-Fi" required>
+            <input type="text" id="form-genero" name="genero" class="netflix-input" placeholder="Ex: Policial, Anime, Drama..." required>
           </div>
 
           <div class="netflix-form-group">
@@ -448,7 +428,7 @@
 
           <div class="netflix-form-group">
             <label for="form-autor" class="netflix-label">Nome do Autor / Crítico *</label>
-            <input type="text" id="form-autor" name="autor" class="netflix-input" placeholder="Ex: Seu Nome" required>
+            <input type="text" id="form-autor" name="autor" class="netflix-input" value="${fn:escapeXml(sessionScope.usuarioLogado.nome)}" required>
           </div>
 
           <div class="netflix-form-group full">
@@ -463,8 +443,8 @@
         </div>
 
         <div class="netflix-form-actions">
-          <button type="button" class="btn-netflix-cancel" onclick="document.getElementById('netflix-add-modal').classList.remove('active'); document.body.style.overflow='';">Cancelar</button>
-          <button type="submit" class="btn-netflix-submit">Salvar no Banco</button>
+          <button type="button" class="btn-netflix-cancel" onclick="closeFormModal()">Cancelar</button>
+          <button type="submit" id="form-submit-btn" class="btn-netflix-submit">Salvar no Banco</button>
         </div>
       </form>
     </div>
@@ -475,23 +455,17 @@
        ========================================================================= -->
   <footer class="netflix-footer" role="contentinfo">
     <div class="footer-inner">
-      <p class="footer-contact">Reviewly — Sistema de Avaliação e Catálogo de Séries com Java e PostgreSQL.</p>
-
+      <p class="footer-contact">Reviewly — Painel Administrativo conectado ao PostgreSQL.</p>
       <div class="footer-links-grid">
-        <a href="#">Perguntas frequentes</a>
-        <a href="#">Central de Ajuda</a>
-        <a href="#">Termos de Uso</a>
-        <a href="#">Privacidade</a>
+        <a href="${pageContext.request.contextPath}/home">Ver Site (Visão do Usuário)</a>
+        <a href="${pageContext.request.contextPath}/controller">Painel Admin (CRUD)</a>
+        <a href="${pageContext.request.contextPath}/auth?acao=logout">Encerrar Sessão</a>
       </div>
-
-      <div class="footer-service-code">Código de Serviço: 2026-RVW-001</div>
-
-      <p class="footer-copy">&copy; 2026 Reviewly Inc. — Todos os direitos reservados. Não associado ao Metflix.</p>
+      <div class="footer-service-code">Código de Serviço: 2026-RVW-ADMIN</div>
+      <p class="footer-copy">&copy; 2026 Reviewly Inc. — Todos os direitos reservados.</p>
     </div>
   </footer>
 
-  <%-- JSON embarcado no HTML para uso do modal de detalhes pelo JavaScript.
-       Cada série retornada pelo banco é serializada aqui de forma segura. --%>
   <script id="series-data-json" type="application/json">
     [<c:forEach var="s" items="${series}" varStatus="loop">
       {
@@ -507,8 +481,6 @@
     </c:forEach>]
   </script>
 
-  <!-- Script Responsável Estritamente por Animações e Interações de UI -->
   <script src="js/script.js" defer></script>
 </body>
 </html>
-

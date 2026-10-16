@@ -185,23 +185,27 @@ button {
    4. Barra de Navegação Estilo Netflix Exato (Screenshots 1 e 2)
    -------------------------------------------------------------------------- */
 .netflix-header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   width: 100%;
-  height: 68px;
+  min-height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 3.5%;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.5rem 3.5%;
   z-index: 950;
-  background: linear-gradient(180deg, rgba(20, 20, 20, 0.95) 0%, rgba(20, 20, 20, 0.5) 60%, transparent 100%);
-  transition: background-color var(--transition-normal);
+  background-color: rgba(20, 20, 20, 0.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background-color var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .netflix-header.scrolled {
   background-color: #141414;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85);
 }
 
 .header-left {
@@ -392,7 +396,7 @@ button {
    -------------------------------------------------------------------------- */
 .billboard-wrapper {
   padding: 0 3.5%;
-  margin-top: 80px;
+  margin-top: 1.25rem;
   margin-bottom: 2rem;
 }
 
@@ -1170,44 +1174,57 @@ button {
 /* --- Netflix Card --- */
 .netflix-card {
   position: relative;
-  flex: 0 0 calc(20% - 10px);
-  min-width: 160px;
-  max-width: 220px;
-  border-radius: 6px;
-  overflow: hidden;
+  flex: 0 0 245px;
+  min-width: 225px;
+  max-width: 260px;
+  border-radius: 8px;
+  overflow: visible;
   cursor: pointer;
-  background: var(--bg-card);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, z-index 0s 0.25s;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), z-index 0s 0.28s;
 }
 
 .netflix-card:hover {
-  transform: scale(1.07);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
-  z-index: 10;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transform: translateY(-4px) scale(1.05);
+  z-index: 25;
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Thumb (imagem de capa) */
+/* Thumb (imagem de capa bem enquadrada) */
 .card-thumb {
+  position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10.5;
+  border-radius: 8px;
   overflow: hidden;
-  background: #111;
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.netflix-card:hover .card-thumb {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 .card-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 20%;
   display: block;
-  transition: transform 0.3s ease;
+  transition: transform 0.35s ease, filter 0.35s ease;
 }
 
 .netflix-card:hover .card-thumb img {
-  transform: scale(1.04);
+  transform: scale(1.06);
+  filter: brightness(0.85);
 }
 
 /* Placeholder quando nao ha srcImagem */
@@ -1222,17 +1239,18 @@ button {
   font-size: 2.5rem;
 }
 
-/* Info que aparece no hover */
+/* Info que aparece DENTRO da imagem ao passar o mouse */
 .card-hover-info {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 0.6rem 0.75rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, transparent 100%);
+  padding: 1.4rem 0.85rem 0.7rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.72) 55%, transparent 100%);
   transform: translateY(100%);
   opacity: 0;
-  transition: transform 0.25s ease, opacity 0.25s ease;
+  transition: transform 0.26s ease, opacity 0.26s ease;
+  pointer-events: none;
 }
 
 .netflix-card:hover .card-hover-info {
@@ -1241,19 +1259,59 @@ button {
 }
 
 .card-hover-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-white);
-  margin: 0 0 0.2rem;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.25rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.card-hover-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
 }
 
 .card-hover-nota {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: #ffbe0b;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.card-hover-year {
+  font-size: 0.72rem;
+  color: #cccccc;
   font-weight: 600;
+}
+
+/* Nome da série fixo EMBAIXO da imagem (some ao passar o mouse) */
+.card-below-caption {
+  padding: 0.5rem 0.2rem 0.15rem;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.netflix-card:hover .card-below-caption {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+
+.card-below-title {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #e5e5e5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ==========================================================================
@@ -1298,4 +1356,716 @@ button {
 @keyframes toastSlideIn {
   from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+
+/* ==========================================================================
+   REVIEWLY — TELA DE LOGIN / CADASTRO (login.jsp)
+   ========================================================================== */
+.auth-page-body {
+  min-height: 100vh;
+  background: #0d0d0d;
+  color: var(--text-white);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(229, 9, 20, 0.18), transparent 45%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.78), rgba(14, 14, 14, 0.96)),
+    url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+  z-index: 0;
+}
+
+.auth-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 4%;
+}
+
+.auth-main-wrapper {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 2.2rem 2.4rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  background: #1a1a1a;
+  padding: 0.35rem;
+  border-radius: 8px;
+  margin-bottom: 1.6rem;
+}
+
+.auth-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-netflix);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.auth-tab-btn.active {
+  background: var(--netflix-red);
+  color: #fff;
+}
+
+.auth-panel.hidden {
+  display: none;
+}
+
+.auth-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+}
+
+.auth-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 1.4rem;
+  line-height: 1.45;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.85rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.auth-admin-hint {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(255, 190, 11, 0.08);
+  border: 1px dashed rgba(255, 190, 11, 0.4);
+  font-size: 0.8rem;
+  color: #e5e5e5;
+}
+
+.auth-admin-hint .hint-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #ffbe0b;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.auth-admin-hint code {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  color: #ffbe0b;
+}
+
+.btn-fill-admin {
+  margin-top: 0.65rem;
+  width: 100%;
+  background: rgba(255, 190, 11, 0.16);
+  border: 1px solid rgba(255, 190, 11, 0.45);
+  color: #ffbe0b;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-family: var(--font-netflix);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-fill-admin:hover {
+  background: rgba(255, 190, 11, 0.28);
+}
+
+/* ==========================================================================
+   REVIEWLY — CONTROLES EXTRAS DO ADMIN NA HOME & NAVBAR
+   ========================================================================== */
+.admin-top-ribbon {
+  background: linear-gradient(90deg, #1b1305 0%, #2a1508 50%, #1a0b0c 100%);
+  border-bottom: 1px solid rgba(255, 190, 11, 0.35);
+  padding: 0.55rem 4%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.admin-ribbon-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.badge-admin-mode {
+  background: #ffbe0b;
+  color: #000;
+  font-weight: 800;
+  font-size: 0.72rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-ribbon-text {
+  color: #ddd;
+}
+
+.admin-ribbon-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-ribbon-action {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-family: var(--font-netflix);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-ribbon-crud {
+  background: #ffbe0b;
+  color: #111;
+  text-decoration: none;
+  padding: 0.38rem 0.85rem;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.76rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.nav-admin-highlight {
+  color: #ffbe0b !important;
+  font-weight: 700 !important;
+}
+
+.btn-admin-panel-nav {
+  background: rgba(255, 190, 11, 0.15);
+  border: 1px solid #ffbe0b;
+  color: #ffbe0b;
+  text-decoration: none;
+  padding: 0.48rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-admin-panel-nav:hover {
+  background: #ffbe0b;
+  color: #000;
+}
+
+.btn-pill-admin {
+  background: #ffbe0b;
+  color: #000;
+  border: none;
+  border-radius: 999px;
+  padding: 0.68rem 1.35rem;
+  font-family: var(--font-netflix);
+  font-weight: 800;
+  font-size: 0.88rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+
+.user-logged-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.28rem 0.6rem 0.28rem 0.35rem;
+  border-radius: 8px;
+}
+
+.avatar-square.avatar-admin {
+  background: linear-gradient(135deg, #ffbe0b, #fb5607);
+  color: #000;
+}
+
+.user-logged-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.user-logged-name {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #fff;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-logged-role {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.role-admin {
+  background: rgba(255, 190, 11, 0.2);
+  color: #ffbe0b;
+}
+
+.role-user {
+  background: rgba(70, 211, 105, 0.2);
+  color: #46d369;
+}
+
+.btn-logout-icon {
+  color: #ff6b6b;
+  font-size: 1rem;
+  padding: 0.2rem 0.35rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.btn-logout-icon:hover {
+  background: rgba(229, 9, 20, 0.2);
+}
+
+/* Botões rápidos de Admin sobre os cards */
+.card-admin-quick-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 5px;
+  z-index: 6;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.netflix-card:hover .card-admin-quick-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn-card-admin {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.btn-card-admin.edit {
+  background: rgba(255, 190, 11, 0.92);
+  color: #000;
+}
+
+.btn-card-admin.delete {
+  background: rgba(229, 9, 20, 0.92);
+  color: #fff;
+}
+
+/* ==========================================================================
+   REVIEWLY — PAINEL DO ADMINISTRADOR CRUD (index.jsp)
+   ========================================================================== */
+.badge-admin-header {
+  background: rgba(255, 190, 11, 0.16);
+  border: 1px solid #ffbe0b;
+  color: #ffbe0b;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.nav-user-view-link {
+  color: #46d369 !important;
+  font-weight: 700 !important;
+}
+
+.admin-dashboard-section {
+  padding: 2rem 4% 1rem;
+}
+
+.admin-dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.admin-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #46d369;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+}
+
+.admin-main-title {
+  font-family: var(--font-logo);
+  font-size: 2.5rem;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.3rem;
+}
+
+.admin-subtitle {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.admin-header-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+}
+
+.admin-stat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 1.15rem 1.35rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.stat-icon.red { background: rgba(229, 9, 20, 0.16); color: var(--netflix-red); }
+.stat-icon.gold { background: rgba(255, 190, 11, 0.16); color: #ffbe0b; }
+.stat-icon.green { background: rgba(70, 211, 105, 0.16); color: #46d369; }
+
+.stat-value {
+  display: block;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.admin-crud-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 1.4rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.admin-crud-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.admin-crud-card-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-crud-card-header code {
+  background: #252525;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  color: #ffbe0b;
+}
+
+.admin-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-crud-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.admin-crud-table th,
+.admin-crud-table td {
+  padding: 0.8rem 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid #262626;
+  vertical-align: middle;
+}
+
+.admin-crud-table th {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: #141414;
+}
+
+.admin-crud-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.td-id {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.td-thumb {
+  width: 64px;
+  height: 38px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.td-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.td-title {
+  font-weight: 700;
+  color: #fff;
+}
+
+.td-badge-genre {
+  background: #262626;
+  padding: 0.22rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.76rem;
+  color: #ddd;
+}
+
+.td-nota {
+  color: #ffbe0b;
+  font-weight: 700;
+}
+
+.td-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.btn-crud-action {
+  padding: 0.38rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-family: var(--font-netflix);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.2s ease;
+}
+
+.btn-crud-action.view {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.btn-crud-action.view:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.btn-crud-action.edit {
+  background: rgba(255, 190, 11, 0.15);
+  border-color: rgba(255, 190, 11, 0.4);
+  color: #ffbe0b;
+}
+.btn-crud-action.edit:hover {
+  background: #ffbe0b;
+  color: #000;
+}
+
+.btn-crud-action.delete {
+  background: rgba(229, 9, 20, 0.15);
+  border-color: rgba(229, 9, 20, 0.4);
+  color: #ff6b6b;
+}
+.btn-crud-action.delete:hover {
+  background: var(--netflix-red);
+  color: #fff;
+}
+
+
+/* ==========================================================================
+   REVIEWLY — CARROSSEL AUTOMÁTICO DO BILLBOARD HERO
+   ========================================================================== */
+#hero-backdrop-img {
+  transition: opacity 0.35s ease, transform 0.6s ease;
+  opacity: 1;
+  transform: scale(1);
+}
+
+#hero-backdrop-img.hero-fade-out {
+  opacity: 0.15;
+  transform: scale(1.03);
+}
+
+#hero-info-side {
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#hero-info-side.hero-info-fade-out {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.billboard-carousel-controls {
+  position: absolute;
+  top: 1.4rem;
+  right: 1.6rem;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(15, 15, 15, 0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+}
+
+.billboard-nav-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.billboard-nav-btn:hover {
+  background: var(--netflix-red);
+  transform: scale(1.08);
+}
+
+.billboard-slide-counter {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e5e5e5;
+  padding: 0 0.35rem;
+  min-width: 44px;
+  text-align: center;
 }

@@ -42,6 +42,7 @@ public class Dao {
                 SELECT id, titulo, genero, ano_lancamento,
                        nota, src_imagem, descricao, autor
                 FROM serie
+                ORDER BY id DESC
                 """;
 
         List<Serie> series = new ArrayList<>();
